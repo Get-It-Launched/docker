@@ -1,0 +1,154 @@
+# Note: 'version' attribute is now obsolete in Docker Compose v2+
+
+# =============================================================================
+# Docker Compose untuk Laravel Website - hagiik.my.id
+# VPS: 2 vCPU, 8GB RAM, 100GB NVMe
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # NGINX - Reverse Proxy
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Nginx configuration
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+      - ./nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      # Self-signed cert for default server (generate on VPS)
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      # Laravel public directories (for static files)
+      - ./sites/hagiik.my.id/public:/var/www/hagiik.my.id/public:ro
+      # SSL certificates
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+      # Logs
+      - ./logs/nginx:/var/log/nginx
+    networks:
+      - app-network
+    depends_on:
+      - site1
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # SITE 1 - hagiik.my.id (Laravel PHP-FPM)
+  # ---------------------------------------------------------------------------
+  site1:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: laravel-hagiik
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./sites/hagiik.my.id:/var/www/html
+      - ./php/php.ini:/usr/local/etc/php/php.ini:ro
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ./logs/php/hagiik:/var/log/php
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - PHP_MEMORY_LIMIT=256M
+      - PHP_MAX_EXECUTION_TIME=60
+    networks:
+      - app-network
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database
+  # ---------------------------------------------------------------------------
+  database:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_ROOT_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD:?Database root password required}
+      # Database untuk hagiik.my.id
+      POSTGRES_DB: hagiik_db
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+
+  # ---------------------------------------------------------------------------
+  # Redis - Cache & Session
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: redis-cache
+    restart: unless-stopped
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ---------------------------------------------------------------------------
+  # Certbot - SSL Certificate Manager
+  # ---------------------------------------------------------------------------
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - app-network
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local

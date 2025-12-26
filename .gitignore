@@ -1,0 +1,32 @@
+# =============================================================================
+# Docker VPS Setup - Git Ignore
+# =============================================================================
+
+# Environment files (contains passwords!)
+.env
+
+# Log files
+*.log
+logs/*
+
+# Certbot SSL certificates (generated on VPS)
+certbot/conf/*
+certbot/www/*
+
+# Database data (on VPS only)
+database/data/*
+
+# Backups (on VPS only)  
+backups/*
+
+# Self-signed SSL for testing
+nginx/ssl/*
+
+# =============================================================================
+# IMPORTANT: Ignore entire sites folder contents
+# Laravel projects are SEPARATE git repositories
+# They are cloned directly on VPS, NOT part of this repo
+# =============================================================================
+sites/*
+!sites/.gitkeep
+!sites/.env.laravel.example

@@ -1,0 +1,16 @@
+# Sites Directory
+
+This folder contains Laravel applications for each domain.
+
+## On VPS, clone your Laravel projects here:
+
+```bash
+cd /docker/sites
+git clone https://github.com/you/laravel-app.git yourdomain.com
+```
+
+## Note
+
+- Each Laravel project is a SEPARATE git repository
+- This folder is ignored by docker-config git
+- Laravel apps are NOT part of the docker-config repository
