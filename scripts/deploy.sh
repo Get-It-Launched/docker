@@ -2,7 +2,7 @@
 # =============================================================================
 # Laravel Deployment Script
 # Usage: ./deploy.sh <site> [full|quick]
-# Example: ./deploy.sh site1 full
+# Example: ./deploy.sh hagiik.my.id full
 # =============================================================================
 
 set -e
@@ -40,15 +40,15 @@ print_error() {
 show_usage() {
     echo "Usage: $0 <site> [full|quick]"
     echo ""
-    echo "Sites: site1, site2, site3, site4"
+    echo "Sites: hagiik.my.id, site2, site3, site4"
     echo ""
     echo "Modes:"
     echo "  full  - Git pull + composer install + npm build + all caches"
     echo "  quick - Git pull + clear cache only"
     echo ""
     echo "Examples:"
-    echo "  $0 site1 full   # Full deployment for site1"
-    echo "  $0 site2 quick  # Quick update for site2"
+    echo "  $0 hagiik.my.id full   # Full deployment for hagiik.my.id"
+    echo "  $0 site2 quick         # Quick update for site2"
     exit 1
 }
 
@@ -62,7 +62,7 @@ MODE=${2:-full}
 
 # Validate site
 case $SITE in
-    site1|site2|site3|site4)
+    hagiik.my.id|site2|site3|site4)
         ;;
     *)
         print_error "Invalid site: $SITE"
@@ -70,12 +70,12 @@ case $SITE in
         ;;
 esac
 
-# Map site to domain
+# Map site to domain and container name
 case $SITE in
-    site1) DOMAIN="test1.com" ;;
-    site2) DOMAIN="test2.com" ;;
-    site3) DOMAIN="test3.com" ;;
-    site4) DOMAIN="test4.com" ;;
+    hagiik.my.id) DOMAIN="hagiik.my.id"; CONTAINER="hagiik_my_id" ;;
+    site2) DOMAIN="test2.com"; CONTAINER="site2" ;;
+    site3) DOMAIN="test3.com"; CONTAINER="site3" ;;
+    site4) DOMAIN="test4.com"; CONTAINER="site4" ;;
 esac
 
 SITE_DIR="${SITES_DIR}/${DOMAIN}"
@@ -96,7 +96,7 @@ cd "$SITE_DIR"
 
 # 1. Enable maintenance mode
 print_header "Step 1: Enabling maintenance mode"
-docker compose exec $SITE php artisan down --retry=60 || true
+docker compose exec $CONTAINER php artisan down --retry=60 || true
 print_success "Maintenance mode enabled"
 
 # 2. Git pull
@@ -107,14 +107,14 @@ print_success "Code updated"
 if [ "$MODE" == "full" ]; then
     # 3. Composer install
     print_header "Step 3: Installing Composer dependencies"
-    docker compose exec $SITE composer install --no-dev --optimize-autoloader
+    docker compose exec $CONTAINER composer install --no-dev --optimize-autoloader
     print_success "Composer dependencies installed"
     
     # 4. NPM build (if package.json exists)
     if [ -f "package.json" ]; then
         print_header "Step 4: Building frontend assets"
-        docker compose exec $SITE npm ci
-        docker compose exec $SITE npm run build
+        docker compose exec $CONTAINER npm ci
+        docker compose exec $CONTAINER npm run build
         print_success "Frontend assets built"
     else
         print_warning "Step 4: No package.json found, skipping npm build"
@@ -122,26 +122,26 @@ if [ "$MODE" == "full" ]; then
     
     # 5. Run migrations
     print_header "Step 5: Running database migrations"
-    docker compose exec $SITE php artisan migrate --force
+    docker compose exec $CONTAINER php artisan migrate --force
     print_success "Migrations completed"
 fi
 
 # 6. Clear and rebuild caches
 print_header "Step 6: Optimizing application"
-docker compose exec $SITE php artisan optimize:clear
-docker compose exec $SITE php artisan optimize
-docker compose exec $SITE php artisan view:cache
+docker compose exec $CONTAINER php artisan optimize:clear
+docker compose exec $CONTAINER php artisan optimize
+docker compose exec $CONTAINER php artisan view:cache
 print_success "Application optimized"
 
 # 7. Set permissions
 print_header "Step 7: Setting file permissions"
-docker compose exec $SITE chown -R www-data:www-data storage bootstrap/cache
-docker compose exec $SITE chmod -R 775 storage bootstrap/cache
+docker compose exec $CONTAINER chown -R www-data:www-data storage bootstrap/cache
+docker compose exec $CONTAINER chmod -R 775 storage bootstrap/cache
 print_success "Permissions set"
 
 # 8. Disable maintenance mode
 print_header "Step 8: Disabling maintenance mode"
-docker compose exec $SITE php artisan up
+docker compose exec $CONTAINER php artisan up
 print_success "Maintenance mode disabled"
 
 # =============================================================================

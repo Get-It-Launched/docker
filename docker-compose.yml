@@ -33,7 +33,7 @@ services:
     networks:
       - app-network
     depends_on:
-      - site1
+      - hagiik_my_id
     healthcheck:
       test: ["CMD", "nginx", "-t"]
       interval: 30s
@@ -41,9 +41,9 @@ services:
       retries: 3
 
   # ---------------------------------------------------------------------------
-  # SITE 1 - hagiik.my.id (Laravel PHP-FPM)
+  # hagiik.my.id (Laravel PHP-FPM)
   # ---------------------------------------------------------------------------
-  site1:
+  hagiik_my_id:
     build:
       context: ./php
       dockerfile: Dockerfile
