@@ -1,8 +1,9 @@
 # Note: 'version' attribute is now obsolete in Docker Compose v2+
 
 # =============================================================================
-# Docker Compose untuk Laravel Website - hagiik.my.id
+# Docker Compose untuk Laravel Websites
 # VPS: 2 vCPU, 8GB RAM, 100GB NVMe
+# Sites: hagiik.my.id, wedlistfy.com
 # =============================================================================
 
 services:
@@ -25,6 +26,7 @@ services:
       - ./nginx/ssl:/etc/nginx/ssl:ro
       # Laravel public directories (for static files)
       - ./sites/hagiik.my.id/public:/var/www/hagiik.my.id/public:ro
+      - ./sites/wedlistfy.com/public:/var/www/wedlistfy.com/public:ro
       # SSL certificates
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
@@ -34,8 +36,9 @@ services:
       - app-network
     depends_on:
       - hagiik_my_id
+      - wedlistfy_com
     healthcheck:
-      test: ["CMD", "nginx", "-t"]
+      test: [ "CMD", "nginx", "-t" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -73,6 +76,38 @@ services:
           memory: 512M
 
   # ---------------------------------------------------------------------------
+  # wedlistfy.com (Laravel PHP-FPM)
+  # ---------------------------------------------------------------------------
+  wedlistfy_com:
+    build:
+      context: ./php
+      dockerfile: Dockerfile
+    container_name: laravel-wedlistfy
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./sites/wedlistfy.com:/var/www/html
+      - ./php/php.ini:/usr/local/etc/php/php.ini:ro
+      - ./php/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro
+      - ./logs/php/wedlistfy:/var/log/php
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - PHP_MEMORY_LIMIT=256M
+      - PHP_MAX_EXECUTION_TIME=60
+    networks:
+      - app-network
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ---------------------------------------------------------------------------
   # PostgreSQL Database
   # ---------------------------------------------------------------------------
   database:
@@ -90,7 +125,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -112,7 +147,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5

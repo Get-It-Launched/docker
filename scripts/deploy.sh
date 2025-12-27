@@ -40,15 +40,15 @@ print_error() {
 show_usage() {
     echo "Usage: $0 <site> [full|quick]"
     echo ""
-    echo "Sites: hagiik.my.id, site2, site3, site4"
+    echo "Sites: hagiik.my.id, wedlistfy.com"
     echo ""
     echo "Modes:"
     echo "  full  - Git pull + composer install + npm build + all caches"
     echo "  quick - Git pull + clear cache only"
     echo ""
     echo "Examples:"
-    echo "  $0 hagiik.my.id full   # Full deployment for hagiik.my.id"
-    echo "  $0 site2 quick         # Quick update for site2"
+    echo "  $0 hagiik.my.id full    # Full deployment for hagiik.my.id"
+    echo "  $0 wedlistfy.com quick  # Quick update for wedlistfy.com"
     exit 1
 }
 
@@ -62,7 +62,7 @@ MODE=${2:-full}
 
 # Validate site
 case $SITE in
-    hagiik.my.id|site2|site3|site4)
+    hagiik.my.id|wedlistfy.com)
         ;;
     *)
         print_error "Invalid site: $SITE"
@@ -73,9 +73,7 @@ esac
 # Map site to domain and container name
 case $SITE in
     hagiik.my.id) DOMAIN="hagiik.my.id"; CONTAINER="hagiik_my_id" ;;
-    site2) DOMAIN="test2.com"; CONTAINER="site2" ;;
-    site3) DOMAIN="test3.com"; CONTAINER="site3" ;;
-    site4) DOMAIN="test4.com"; CONTAINER="site4" ;;
+    wedlistfy.com) DOMAIN="wedlistfy.com"; CONTAINER="wedlistfy_com" ;;
 esac
 
 SITE_DIR="${SITES_DIR}/${DOMAIN}"
