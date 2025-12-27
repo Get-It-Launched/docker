@@ -1,6 +1,16 @@
-# Docker Setup for 4 Laravel Websites
+# Docker Setup for Laravel Websites
 
-Setup production-ready Docker environment untuk hosting 4 Laravel websites di VPS Ubuntu.
+> ⚠️ **PENTING**: Baca [SAFETY-GUIDELINES.md](docs/SAFETY-GUIDELINES.md) sebelum melakukan maintenance!
+
+Setup production-ready Docker environment untuk hosting Laravel websites di VPS Ubuntu.
+
+## 📚 Dokumentasi
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [SAFETY-GUIDELINES.md](docs/SAFETY-GUIDELINES.md) | ⚠️ **WAJIB BACA** - Aturan keamanan data |
+| [VPS-SETUP.md](docs/VPS-SETUP.md) | Panduan setup VPS dari awal |
+| [ADD-NEW-DOMAIN.md](docs/ADD-NEW-DOMAIN.md) | Panduan menambah domain baru |
 
 ## Features
 

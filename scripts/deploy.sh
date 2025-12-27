@@ -40,7 +40,7 @@ print_error() {
 show_usage() {
     echo "Usage: $0 <site> [full|quick]"
     echo ""
-    echo "Sites: hagiik.my.id, wedlistfy.com"
+    echo "Sites: hagiik.my.id, wedlistfy.com, launchify.co.id"
     echo ""
     echo "Modes:"
     echo "  full  - Git pull + composer install + npm build + all caches"
@@ -62,7 +62,7 @@ MODE=${2:-full}
 
 # Validate site
 case $SITE in
-    hagiik.my.id|wedlistfy.com)
+    hagiik.my.id|wedlistfy.com|launchify.co.id)
         ;;
     *)
         print_error "Invalid site: $SITE"
@@ -74,6 +74,7 @@ esac
 case $SITE in
     hagiik.my.id) DOMAIN="hagiik.my.id"; CONTAINER="hagiik_my_id" ;;
     wedlistfy.com) DOMAIN="wedlistfy.com"; CONTAINER="wedlistfy_com" ;;
+    launchify.co.id) DOMAIN="launchify.co.id"; CONTAINER="launchify_co_id" ;;
 esac
 
 SITE_DIR="${SITES_DIR}/${DOMAIN}"
