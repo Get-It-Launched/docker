@@ -31,6 +31,9 @@ RUN apk add --no-cache \
     postgresql-dev \
     libxml2-dev \
     imagemagick-dev \
+    # Node.js for Vite/NPM builds
+    nodejs \
+    npm \
     # For healthcheck
     fcgi
 
