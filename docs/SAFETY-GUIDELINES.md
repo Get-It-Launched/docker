@@ -22,7 +22,7 @@ docker volume prune
 
 # ❌ BAHAYA - DROP DATABASE!
 DROP DATABASE wedlistfy_db;
-DROP DATABASE hagiik_db;
+DROP DATABASE launchify_db;
 ```
 
 ---
@@ -90,7 +90,7 @@ docker compose exec database pg_dumpall -U postgres > /backup/full_backup_$(date
 
 # Backup database spesifik
 docker compose exec database pg_dump -U postgres wedlistfy_db > /backup/wedlistfy_$(date +%Y%m%d).sql
-docker compose exec database pg_dump -U postgres hagiik_db > /backup/hagiik_$(date +%Y%m%d).sql
+docker compose exec database pg_dump -U postgres launchify_db > /backup/launchify_$(date +%Y%m%d).sql
 ```
 
 ### Restore Database
@@ -107,14 +107,14 @@ cat /backup/wedlistfy.sql | docker compose exec -T database psql -U postgres wed
 # Backup semua .env
 cp /docker/.env /backup/docker_env_$(date +%Y%m%d)
 cp /docker/sites/wedlistfy.com/.env /backup/wedlistfy_env_$(date +%Y%m%d)
-cp /docker/sites/hagiik.my.id/.env /backup/hagiik_env_$(date +%Y%m%d)
+cp /docker/sites/launchify.co.id/.env /backup/launchify_env_$(date +%Y%m%d)
 ```
 
 ### Backup Uploaded Files
 ```bash
 # Backup storage
 tar -czvf /backup/wedlistfy_storage_$(date +%Y%m%d).tar.gz /docker/sites/wedlistfy.com/storage/app
-tar -czvf /backup/hagiik_storage_$(date +%Y%m%d).tar.gz /docker/sites/hagiik.my.id/storage/app
+tar -czvf /backup/launchify_storage_$(date +%Y%m%d).tar.gz /docker/sites/launchify.co.id/storage/app
 ```
 
 ---
@@ -163,8 +163,7 @@ docker compose exec wedlistfy_com php artisan optimize
 | Domain | Container | Database | Status |
 |--------|-----------|----------|--------|
 | wedlistfy.com | wedlistfy_com | wedlistfy_db | ✅ Active |
-| hagiik.my.id | hagiik_my_id | hagiik_db | ⚠️ SSL Pending |
-| launchify.co.id | launchify_co_id | launchify_db | ⏳ Domain Belum Aktif |
+| launchify.co.id | launchify_co_id | launchify_db | ⏳ Setup Pending |
 
 ### Credentials Location:
 - Docker env: `/docker/.env`

@@ -5,7 +5,7 @@
 
 FROM php:8.3-fpm-alpine
 
-LABEL maintainer="Your Name <your@email.com>"
+LABEL maintainer="Hagiik hagiihsank@gmail.com"
 LABEL description="PHP 8.3 FPM with Laravel extensions"
 
 # Set working directory
