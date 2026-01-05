@@ -174,14 +174,17 @@ services:
 
   # ---------------------------------------------------------------------------
   # Portainer - Docker Management UI
-  # Access: http://YOUR_IP:9000
+  # Access via subdomain: https://portainer.launchify.co.id
   # ---------------------------------------------------------------------------
   portainer:
     image: portainer/portainer-ce:latest
     container_name: portainer
     restart: unless-stopped
-    ports:
-      - "9000:9000"
+    # Port removed - access via Nginx reverse proxy only
+    # ports:
+    #   - "9000:9000"
+    expose:
+      - "9000"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - portainer-data:/data
@@ -194,14 +197,17 @@ services:
 
   # ---------------------------------------------------------------------------
   # Uptime Kuma - Uptime Monitoring
-  # Access: http://YOUR_IP:3001
+  # Access via subdomain: https://uptime.launchify.co.id
   # ---------------------------------------------------------------------------
   uptime-kuma:
     image: louislam/uptime-kuma:latest
     container_name: uptime-kuma
     restart: unless-stopped
-    ports:
-      - "3001:3001"
+    # Port removed - access via Nginx reverse proxy only
+    # ports:
+    #   - "3001:3001"
+    expose:
+      - "3001"
     volumes:
       - uptime-kuma-data:/app/data
     networks:
